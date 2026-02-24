@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Football Match Table Maker</title>
+
+<style>
+body{
+    font-family: Arial;
+    text-align:center;
+    background:#f2f2f2;
+}
+
+table{
+    margin:auto;
+    border-collapse:collapse;
+    width:60%;
+    background:white;
+}
+
+th,td{
+    border:1px solid black;
+    padding:10px;
+}
+
+button{
+    padding:8px 15px;
+    margin-top:10px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Football League Table</h2>
+
+<!-- MATCH INPUT -->
+<h3>Set Match Result</h3>
+
+Team 1:
+<select id="team1"></select>
+
+Team 2:
+<select id="team2"></select>
+
+<br><br>
+
+Result:
+<select id="result">
+<option value="team1">Team 1 Win</option>
+<option value="team2">Team 2 Win</option>
+<option value="draw">Draw</option>
+</select>
+
+<br>
+<button onclick="addMatch()">Add Match</button>
+
+<h3>League Table</h3>
+
+<table>
+<thead>
+<tr>
+<th>Team</th>
+<th>Played</th>
+<th>Points</th>
+</tr>
+</thead>
+
+<tbody id="tableBody"></tbody>
+</table>
+
+<script>
+
+const teams = {
+    "Class A": {played:0, points:0},
+    "Class B": {played:0, points:0},
+    "Class C": {played:0, points:0},
+    "Class D": {played:0, points:0},
+    "Class E": {played:0, points:0}
+};
+
+// Fill dropdowns
+function loadTeams(){
+    const t1=document.getElementById("team1");
+    const t2=document.getElementById("team2");
+
+    for(let team in teams){
+        t1.innerHTML+=`<option>${team}</option>`;
+        t2.innerHTML+=`<option>${team}</option>`;
+    }
+}
+
+function addMatch(){
+
+    let team1=document.getElementById("team1").value;
+    let team2=document.getElementById("team2").value;
+    let result=document.getElementById("result").value;
+
+    if(team1===team2){
+        alert("Same team cannot play!");
+        return;
+    }
+
+    teams[team1].played++;
+    teams[team2].played++;
+
+    if(result==="team1"){
+        teams[team1].points+=3;
+    }
+    else if(result==="team2"){
+        teams[team2].points+=3;
+    }
+    else{
+        teams[team1].points+=1;
+        teams[team2].points+=1;
+    }
+
+    updateTable();
+}
+
+function updateTable(){
+
+    let body=document.getElementById("tableBody");
+    body.innerHTML="";
+
+    let sorted=Object.entries(teams)
+        .sort((a,b)=>b[1].points-a[1].points);
+
+    sorted.forEach(([name,data])=>{
+        body.innerHTML+=`
+        <tr>
+        <td>${name}</td>
+        <td>${data.played}</td>
+        <td>${data.points}</td>
+        </tr>`;
+    });
+}
+
+loadTeams();
+updateTable();
+
+</script>
+
+</body>
+</html>
