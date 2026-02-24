@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Feedback Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-blue-600">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-slate-800">Teacher Feedback</h1>
+            <p class="text-slate-500 text-sm">Your feedback is sent directly to the teacher's phone.</p>
+        </div>
+
+        <form id="feedbackForm" class="space-y-5">
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Select Teacher</label>
+                <select id="teacher" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg outline-none focus:border-blue-500 transition-all" required>
+                    <option value="">-- Click to Choose --</option>
+                    <option value="Teacher 1">Teacher 1</option>
+                    <option value="Teacher 2">Teacher 2</option>
+                    <option value="Teacher 3">Teacher 3</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Your Comments</label>
+                <textarea id="comment" rows="4" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg outline-none focus:border-blue-500 transition-all" placeholder="Enter your feedback here..." required></textarea>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition-all active:scale-95">
+                Submit Feedback
+            </button>
+        </form>
+
+        <p id="status" class="mt-4 text-center text-sm font-medium hidden"></p>
+    </div>
+
+    <script>
+        // YOUR TELEGRAM KEYS (Connected to your Bot)
+        const BOT_TOKEN = "8646658406:AAGW4TjXnz1Jh-JIzOvG1dGTdIBUpFCvcrw";
+        const CHAT_ID = "7797532786";
+
+        const form = document.getElementById('feedbackForm');
+        const status = document.getElementById('status');
+        const btn = document.getElementById('submitBtn');
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            
+            // UI Loading state
+            btn.disabled = true;
+            btn.innerText = "Sending to phone...";
+            status.className = "mt-4 text-center text-sm font-medium text-blue-600";
+            status.innerText = "Connecting to Telegram...";
+            status.classList.remove('hidden');
+
+            const teacher = document.getElementById('teacher').value;
+            const comment = document.getElementById('comment').value;
+
+            // Formulate the message
+            const text = `📬 *NEW FEEDBACK*\n\n` +
+                         `*Teacher:* ${teacher}\n` +
+                         `*Comment:* ${comment}\n\n` +
+                         `_Sent via Feedback App_`;
+
+            // The URL for the Telegram API
+            const apiURL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+            try {
+                const response = await fetch(apiURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: text,
+                        parse_mode: 'Markdown'
+                    })
+                });
+
+                if (response.ok) {
+                    status.className = "mt-4 text-center text-sm font-medium text-green-600";
+                    status.innerText = "✅ Feedback Sent Successfully!";
+                    form.reset();
+                } else {
+                    throw new Error();
+                }
+            } catch (err) {
+                status.className = "mt-4 text-center text-sm font-medium text-red-600";
+                status.innerText = "❌ Failed. Did you click START on the bot?";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Submit Feedback";
+            }
+        };
+    </script>
+</body>
+</html>
